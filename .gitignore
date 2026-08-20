@@ -1,0 +1,29 @@
+# Xcode / build
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.dSYM
+
+# XcodeGen 生成物：项目从 project.yml 生成，不入库（改结构后跑 `xcodegen generate`）
+MyQuickFinder.xcodeproj/
+# 例外：里面的 swiftpm/Package.resolved 要 git add -f 入库，否则「现在用的是哪个
+# commit」谁都看不见。已跟踪的文件不受上面这条影响，不能靠 `!` 反排除——父目录
+# 整个被排除时 git 不会下探进去。
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+*~
+
+# 其他
+*.log
+
+# Claude Code 本地配置（含机器相关路径，不入库）
+.claude/settings.local.json
+
+.release-build/
+.release-artifacts/

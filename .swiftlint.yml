@@ -1,0 +1,101 @@
+included:
+  - Sources
+  - Tests
+  - MyQuickFinderKit/Sources
+  - MyQuickFinderKit/Tests
+
+only_rules:
+  - force_unwrapping
+  - force_try
+  - force_cast
+  - implicitly_unwrapped_optional
+  - function_body_length
+  - type_body_length
+  - cyclomatic_complexity
+  - nesting
+  - line_length
+  - weak_delegate
+  - unused_optional_binding
+  - implicit_optional_initialization
+  - fatal_error_message
+  - empty_count
+  - toggle_bool
+  - for_where
+  - explicit_init
+  - protocol_property_accessors_order
+  - overridden_super_call
+  - prohibited_super_call
+  - private_unit_test
+  - legacy_cggeometry_functions
+  - legacy_constant
+  - legacy_constructor
+  - custom_rules
+
+function_body_length:
+  warning: 80
+  error: 200
+
+type_body_length:
+  warning: 500
+  error: 750
+
+line_length: 140
+
+force_unwrapping:
+  severity: error
+force_try:
+  severity: error
+force_cast:
+  severity: error
+implicitly_unwrapped_optional:
+  severity: error
+empty_count:
+  severity: warning
+
+custom_rules:
+  magic_font_size:
+    name: "Literal font size"
+    regex: '\.system\(size:\s*-?\d'
+    message: "Use a text style, DesignTokens.Typography, or a local Metrics role"
+    severity: error
+  magic_opacity:
+    name: "Literal opacity"
+    regex: '(\.opacity\(|\.alpha\s*=\s*|withAlphaComponent\()\s*-?\d*\.\d'
+    message: "Use BaseTokens.Opacity or a semantic color abstraction"
+    severity: error
+  magic_opacity_constant:
+    name: "Literal opacity constant"
+    regex: 'static let \w*([Oo]pacity|[Aa]lpha)\w*(\s*:\s*\w+)?\s*=\s*-?\d*\.\d'
+    message: "Use BaseTokens.Opacity"
+    severity: error
+  magic_corner_radius:
+    name: "Literal corner radius"
+    regex: 'cornerRadius\s*[:=]\s*-?\d*\.?[1-9]'
+    message: "Use DesignTokens or a local Metrics role"
+    severity: error
+  magic_border_width:
+    name: "Literal border width"
+    regex: '(layer\.borderWidth|lineWidth)\s*[:=]\s*-?\d*\.?[1-9]'
+    message: "Use BaseTokens.Border"
+    severity: error
+  magic_shadow_param:
+    name: "Literal shadow parameter"
+    regex: 'shadow(Opacity|Radius|Offset)\s*='
+    message: "Use BaseTokens.ElevationStyle"
+    severity: error
+  magic_duration:
+    name: "Literal animation parameter"
+    regex: '^(?!\s*static let)[^\n]*\b(duration|response|dampingFraction):\s*-?\d'
+    message: "Use DesignTokens.Motion or a named local Metrics role"
+    severity: error
+  magic_layout_constant:
+    name: "Literal layout value"
+    regex: '\b(spacing|lineWidth|minLength|width|height|minHeight|maxHeight|equalToConstant|constant):\s*-?([2-9]|\d{2,}|\d*\.\d+)'
+    message: "Use BaseTokens, DesignTokens, or a local semantic role"
+    severity: error
+    excluded: ".*Tests.*"
+  magic_padding:
+    name: "Literal padding"
+    regex: '\.padding\((\.[a-z]+,\s*)?-?([2-9]|\d{2,}|\d*\.\d+)'
+    message: "Use BaseTokens.Spacing or BaseTokens.Inset"
+    severity: error

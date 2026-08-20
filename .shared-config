@@ -1,0 +1,5 @@
+dirs="Sources Tests MyQuickFinderKit/Sources MyQuickFinderKit/Tests"
+kit=MyQuickFinderKit
+scheme=MyQuickFinder
+destination=platform=macOS
+scheme_paths="Sources Tests project.yml"

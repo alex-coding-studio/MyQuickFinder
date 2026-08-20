@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+export PATH="/opt/homebrew/bin:$PATH"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p)}"
+
+# shellcheck disable=SC1091
+source .shared-config
+
+if [ -n "${kit:-}" ]; then
+    echo "Testing $kit"
+    if ! output="$(swift test --package-path "$kit" 2>&1)"; then
+        echo "$output" | tail -30
+        echo "Package tests failed; push blocked." >&2
+        exit 1
+    fi
+fi
+
+if [ -z "${scheme:-}" ]; then
+    [ -n "${kit:-}" ] || echo "No package or scheme test target; skipping tests."
+    exit 0
+fi
+
+if [ -n "${scheme_paths:-}" ]; then
+    upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)"
+    if [ -n "$upstream" ]; then
+        # shellcheck disable=SC2086
+        if ! git diff --name-only "$upstream"...HEAD -- $scheme_paths | grep -q .; then
+            echo "No changes in scheme test paths; skipping $scheme tests."
+            exit 0
+        fi
+    fi
+fi
+
+if [ -z "${destination:-}" ]; then
+    echo "A scheme requires destination in .shared-config." >&2
+    exit 1
+fi
+
+if [ -f project.yml ]; then
+    echo "Generating the Xcode project"
+    xcodegen generate --quiet
+fi
+
+echo "Testing $scheme"
+if ! output="$(xcodebuild test -scheme "$scheme" -destination "$destination" 2>&1)"; then
+    grep -E "error:|failed|Executed" <<<"$output" | tail -20
+    echo "Scheme tests failed; push blocked." >&2
+    exit 1
+fi
+
+count="$(grep -oE 'Executed [0-9]+ test|Test run with [0-9]+ test' <<<"$output" | grep -oE '[0-9]+' | sort -rn | head -1)"
+if [ "${count:-0}" -eq 0 ]; then
+    echo "The test command succeeded but executed zero tests; push blocked." >&2
+    exit 1
+fi
+
+echo "$count tests passed."

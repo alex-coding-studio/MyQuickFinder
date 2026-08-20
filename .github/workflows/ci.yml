@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: macos-14
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select the newest installed Xcode
+        run: |
+          newest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          sudo xcode-select -s "${newest:-/Applications/Xcode.app}"
+          xcodebuild -version
+          swift --version
+
+      - name: Install the toolchain
+        run: |
+          for formula in xcodegen swiftformat swiftlint; do
+            brew list --formula "$formula" >/dev/null 2>&1 || brew install "$formula"
+          done
+
+      - name: Generate the Xcode project
+        run: xcodegen generate
+
+      - name: Lint
+        run: ./scripts/lint.sh
+
+      - name: Test MyQuickFinderKit
+        run: swift test --package-path MyQuickFinderKit
+
+      - name: Test the app scheme
+        run: |
+          xcodebuild test \
+            -project MyQuickFinder.xcodeproj \
+            -scheme MyQuickFinder \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="-" \
+            DEVELOPMENT_TEAM=""
