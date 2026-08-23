@@ -29,9 +29,17 @@ jobs:
 
       - name: Install the toolchain
         run: |
+          brew update
           for formula in xcodegen swiftformat swiftlint; do
-            brew list --formula "$formula" >/dev/null 2>&1 || brew install "$formula"
+            if brew list --formula "$formula" >/dev/null 2>&1; then
+              brew upgrade --formula "$formula"
+            else
+              brew install --formula "$formula"
+            fi
           done
+          swiftformat --version
+          swiftlint --version
+          xcodegen --version
 
       - name: Generate the Xcode project
         run: xcodegen generate
